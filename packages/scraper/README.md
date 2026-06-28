@@ -1,15 +1,23 @@
-# youtube-transcript-edge
+# @youtube-transcript/scraper
 
-A JavaScript library to fetch transcripts from YouTube videos. Designed for edge environments like Cloudflare Workers.
+A JavaScript library to fetch transcripts from YouTube videos. Designed for edge environments like Cloudflare Workers, Vercel Edge, Deno, and Bun.
 
-**Note:** This project was originally forked from [https://github.com/ericmmartin/youtube-transcript-plus](https://github.com/ericmmartin/youtube-transcript-plus), which only works in Node.js environments. This edge-compatible version removes Node.js specific modules (like `fs`, `path`) to run perfectly on Cloudflare Workers, Vercel Edge, Deno, and Bun.
+**Note:** This project was originally forked from [https://github.com/ericmmartin/youtube-transcript-plus](https://github.com/ericmmartin/youtube-transcript-plus) (which only works in Node.js environments) and restructured as a TypeScript package inside this monorepo. It removes Node-specific modules (like `fs`, `path`) to run perfectly in any JS environment.
 
 This package uses YouTube's unofficial API, so it may break if YouTube changes its internal structure.
 
 ## Installation
 
+Within the monorepo, reference it as a workspace dependency:
+```json
+"dependencies": {
+  "@youtube-transcript/scraper": "workspace:*"
+}
+```
+
+If publishing to npm:
 ```bash
-$ bun add youtube-transcript-edge
+$ bun add @youtube-transcript/scraper
 ```
 
 ## Usage
@@ -17,7 +25,7 @@ $ bun add youtube-transcript-edge
 ### Basic Usage
 
 ```javascript
-import { fetchTranscript } from 'youtube-transcript-edge';
+import { fetchTranscript } from '@youtube-transcript/scraper';
 
 // Fetch transcript using default settings
 fetchTranscript('videoId_or_URL').then(console.log).catch(console.error);
@@ -103,7 +111,7 @@ import {
   YoutubeTranscriptDisabledError,
   YoutubeTranscriptNotAvailableError,
   YoutubeTranscriptNotAvailableLanguageError,
-} from 'youtube-transcript-edge';
+} from '@youtube-transcript/scraper';
 
 fetchTranscript('videoId_or_URL')
   .then(console.log)
@@ -122,17 +130,6 @@ fetchTranscript('videoId_or_URL')
   });
 ```
 
-### Example Usage Files
-
-The repository includes several example files in the `example/` directory to demonstrate different use cases of the library:
-
-1. **`basic-usage.js`**: Demonstrates the simplest way to fetch a transcript using the default settings.
-3. **`language-usage.js`**: Shows how to fetch a transcript in a specific language (e.g., French).
-4. **`proxy-usage.js`**: Demonstrates how to use a proxy server to fetch transcripts, which can be useful for bypassing rate limits or accessing restricted content.
-5. **`custom-fetch-usage.js`**: Shows how to use all three custom fetch functions (`videoFetch`, `playerFetch`, `transcriptFetch`) with logging and custom headers.
-
-These examples can be found in the `example/` directory of the repository.
-
 ### TypeScript Types
 
 All types are exported for TypeScript consumers:
@@ -142,10 +139,10 @@ import type {
   TranscriptConfig,
   TranscriptResponse,
   FetchParams,
-} from 'youtube-transcript-edge';
+} from '@youtube-transcript/scraper';
 ```
 
-### API
+## API
 
 ### `fetchTranscript(videoId: string, config?: TranscriptConfig)`
 
@@ -176,5 +173,3 @@ The library throws the following errors:
 - **`YoutubeTranscriptNotAvailableLanguageError`**: The transcript is not available in the specified language. Properties: `videoId`, `lang`, `availableLangs`.
 - **`YoutubeTranscriptTooManyRequestError`**: YouTube is rate-limiting requests from your IP.
 - **`YoutubeTranscriptInvalidVideoIdError`**: The provided video ID or URL is invalid.
-
-## License
