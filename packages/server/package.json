@@ -12,6 +12,7 @@
 		"@youtube-transcript/scraper": "workspace:*"
 	},
 	"devDependencies": {
-		"@types/bun": "^1.3.10"
+		"@types/bun": "catalog:",
+		"typescript": "catalog:"
 	}
 }
