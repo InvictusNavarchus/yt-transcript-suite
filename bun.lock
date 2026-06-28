@@ -7,7 +7,7 @@
       "devDependencies": {
         "@biomejs/biome": "2.5.1",
         "@types/node": "catalog:",
-        "lefthook": "^2.1.2",
+        "lefthook": "^2.1.9",
         "typescript": "catalog:",
       },
     },
