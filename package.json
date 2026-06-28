@@ -6,6 +6,8 @@
 		"packages/*"
 	],
 	"scripts": {
+		"cli": "bun --filter \"@youtube-transcript/cli\" run cli",
+		"inspect": "bun --filter \"@youtube-transcript/cli\" run inspect",
 		"dev:server": "bun --filter \"@youtube-transcript/server\" dev",
 		"dev:userscript": "bun --filter \"@youtube-transcript/userscript\" dev",
 		"build:core": "bun --filter \"@youtube-transcript/core\" build",

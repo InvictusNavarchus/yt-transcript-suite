@@ -165,4 +165,5 @@ export type {
 	TranscriptResponse,
 	TranscriptWithMetadata,
 	VideoMetadata,
+	YouTubePlayerResponse,
 } from './types';

@@ -19,9 +19,9 @@
  *   bun scripts/cli.ts dQw4w9WgXcQ --lang fr --format text
  */
 
+import type { TranscriptConfig } from '@youtube-transcript/core';
+import { fetchTranscript } from '@youtube-transcript/core';
 import clipboardy from 'clipboardy';
-import { fetchTranscript } from '../src/index';
-import type { TranscriptConfig } from '../src/types';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

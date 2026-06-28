@@ -1,4 +1,4 @@
-import { fetchTranscript } from '../src/index';
+import { fetchTranscript } from '@youtube-transcript/core';
 
 const video_id_or_url = 'https://www.youtube.com/watch?v=RTTCbb_2G4s';
 const transcript = await fetchTranscript(video_id_or_url);

@@ -1,0 +1,10 @@
+refactor: extract cli and helper scripts to a dedicated cli package
+
+- Created the `@youtube-transcript/cli` package inside `packages/cli` to house the CLI interface, PlayerResponse inspector, and other test scripts.
+- Updated all script files to import types and APIs directly from `@youtube-transcript/core` via workspace linkage rather than using relative paths.
+- Exported the `YouTubePlayerResponse` type from the core library index so it is accessible to the inspector.
+- Re-assigned the `clipboardy` dependency to the `@youtube-transcript/cli` package and removed it from core's `package.json`.
+- Added root `package.json` script shortcuts for running `cli` and `inspect` commands.
+
+Generated with Antigravity
+Co-authored-by: gemini-code-assist[bot] <176961590+gemini-code-assist[bot]@users.noreply.github.com>

@@ -8,7 +8,7 @@
  *   bun run scripts/test-metadata.ts dQw4w9WgXcQ
  */
 
-import { fetchTranscript } from '../src/index';
+import { fetchTranscript } from '@youtube-transcript/core';
 
 const args = process.argv.slice(2);
 
