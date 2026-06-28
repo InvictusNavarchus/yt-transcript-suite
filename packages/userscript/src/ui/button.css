@@ -1,0 +1,116 @@
+.yt-transcript-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	margin-left: 8px;
+	margin-right: 20px;
+	margin-top: 2px;
+	padding: 6px 12px;
+	border: none;
+	border-radius: 18px;
+	background: rgba(255, 255, 255, 0.1);
+	color: #f1f1f1;
+	font-size: 12px;
+	font-family: "Roboto", Arial, sans-serif;
+	font-weight: 500;
+	cursor: pointer;
+	transition:
+		background 0.2s,
+		transform 0.1s;
+	flex-shrink: 0;
+	align-self: flex-start;
+	position: relative;
+	overflow: hidden;
+}
+
+.yt-transcript-btn:hover {
+	background: rgba(255, 255, 255, 0.2);
+}
+
+.yt-transcript-btn:active {
+	transform: scale(0.95);
+}
+
+/* ── Dot indicator ── */
+.btn-dot {
+	display: none;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #2ba64a;
+	flex-shrink: 0;
+}
+
+/* ── State: fetching ── */
+.yt-transcript-btn[data-state="fetching"] {
+	background: rgba(62, 166, 255, 0.15);
+	color: #3ea6ff;
+	cursor: wait;
+	pointer-events: none;
+}
+
+.yt-transcript-btn[data-state="fetching"] .btn-icon {
+	animation: yt-spin 0.8s linear infinite;
+}
+
+/* ── State: success ── */
+.yt-transcript-btn[data-state="success"] {
+	background: rgba(43, 166, 74, 0.15);
+	color: #2ba64a;
+	pointer-events: none;
+}
+
+/* ── State: copied ── */
+.yt-transcript-btn[data-state="copied"] {
+	background: rgba(255, 255, 255, 0.1);
+	color: #f1f1f1;
+	pointer-events: auto;
+}
+
+.yt-transcript-btn[data-state="copied"] .btn-dot {
+	display: inline-block;
+}
+
+/* ── State: error ── */
+.yt-transcript-btn[data-state="error"] {
+	background: rgba(255, 78, 69, 0.15);
+	color: #ff4e45;
+	pointer-events: auto;
+}
+
+/* ── Watch page sidebar: full-width row below title/channel/views ── */
+.yt-transcript-btn--stacked {
+	margin-left: 0;
+	margin-right: 0;
+	margin-top: 6px;
+	align-self: flex-start;
+}
+
+/* ── Shimmer sweep on fetching ── */
+.yt-transcript-btn[data-state="fetching"]::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: -60%;
+	width: 40%;
+	height: 100%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		rgba(255, 255, 255, 0.15),
+		transparent
+	);
+	animation: yt-shimmer 1.2s linear infinite;
+}
+
+@keyframes yt-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+@keyframes yt-shimmer {
+	to {
+		left: 130%;
+	}
+}

@@ -1,0 +1,12 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"declaration": true,
+		"declarationDir": "dist",
+		"outDir": "dist",
+		"lib": ["esnext", "dom"],
+		"types": ["node", "vitest/globals", "bun"]
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "dist", "**/*.spec.ts"]
+}

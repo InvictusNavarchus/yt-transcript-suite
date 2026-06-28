@@ -1,0 +1,25 @@
+{
+	"name": "youtube-transcript-monorepo",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev:server": "bun --filter \"@youtube-transcript/server\" dev",
+		"dev:userscript": "bun --filter \"@youtube-transcript/userscript\" dev",
+		"build:core": "bun --filter \"@youtube-transcript/core\" build",
+		"build:userscript": "bun --filter \"@youtube-transcript/userscript\" build",
+		"typecheck": "bun --filter \"*\" typecheck",
+		"test": "bun --filter \"@youtube-transcript/core\" test",
+		"format": "bunx @biomejs/biome format --write .",
+		"lint": "bunx @biomejs/biome lint .",
+		"prepare": "lefthook install"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.6",
+		"@types/node": "^26.0.1",
+		"lefthook": "^2.1.2",
+		"typescript": "^6.0.2"
+	}
+}
