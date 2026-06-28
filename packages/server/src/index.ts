@@ -1,4 +1,4 @@
-import { fetchTranscript } from '@youtube-transcript/core';
+import { fetchTranscript } from '@youtube-transcript/scraper';
 
 const API_KEY = process.env.SERVER_API_KEY;
 const PORT = Number(process.env.PORT ?? 3456);

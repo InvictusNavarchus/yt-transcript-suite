@@ -1,5 +1,5 @@
 {
-	"name": "@youtube-transcript/core",
+	"name": "@youtube-transcript/scraper",
 	"version": "1.2.0",
 	"description": "Fetch transcript from a YouTube video",
 	"type": "module",

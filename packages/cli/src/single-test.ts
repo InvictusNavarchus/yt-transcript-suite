@@ -1,4 +1,4 @@
-import { fetchTranscript } from '@youtube-transcript/core';
+import { fetchTranscript } from '@youtube-transcript/scraper';
 
 const video_id_or_url =
 	'https://www.youtube.com/watch?v=xoriGNUNF7E&pp=ygUHYXBpIGtleQ%3D%3D';

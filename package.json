@@ -10,10 +10,10 @@
 		"inspect": "bun --filter \"@youtube-transcript/cli\" run inspect",
 		"dev:server": "bun --filter \"@youtube-transcript/server\" dev",
 		"dev:userscript": "bun --filter \"@youtube-transcript/userscript\" dev",
-		"build:core": "bun --filter \"@youtube-transcript/core\" build",
+		"build:scraper": "bun --filter \"@youtube-transcript/scraper\" build",
 		"build:userscript": "bun --filter \"@youtube-transcript/userscript\" build",
 		"typecheck": "bun --filter \"*\" typecheck",
-		"test": "bun --filter \"@youtube-transcript/core\" test",
+		"test": "bun --filter \"@youtube-transcript/scraper\" test",
 		"format": "bunx @biomejs/biome format --write .",
 		"lint": "bunx @biomejs/biome lint .",
 		"prepare": "lefthook install"
