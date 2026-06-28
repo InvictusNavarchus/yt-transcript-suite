@@ -75,3 +75,72 @@ Execute these commands from the root directory:
   bun run format
   bun run lint
   ```
+
+---
+
+## Data Flow & Workflows
+
+### 1. Normal Workflow (Browser Userscript + Local Server)
+
+This is the standard workflow when browsing YouTube. The transcript is fetched via the local server using your home IP and copied to your browser's clipboard automatically.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Browser User
+    participant Script as Userscript (packages/userscript)
+    participant Server as Bun Server (packages/server)
+    participant Scraper as Scraper Library (packages/scraper)
+    participant YouTube as YouTube API
+
+    User->>Script: Click "Transcript" Button
+    Script->>Script: Extract video ID from DOM/URL
+    Script->>Server: HTTP GET /transcript?videoId=<id> (x-api-key header)
+    Server->>Server: Validate x-api-key
+    Server->>Scraper: Call fetchTranscript(videoId) in-memory
+    Scraper->>YouTube: Fetch watch page HTML (extract Innertube API Key)
+    Scraper->>YouTube: POST /youtubei/v1/player (get captionTracks list)
+    Scraper->>YouTube: GET caption track URL (fetch raw XML transcript)
+    Scraper->>Scraper: Parse XML, convert to Plaintext, format with YAML metadata
+    Scraper-->>Server: Return formatted transcript string
+    Server-->>Script: HTTP 200 JSON { videoId, transcript }
+    Script->>Script: Write transcript text to Clipboard (GM_setClipboard)
+    Script->>Script: Persist video ID to storage (GM_setValue)
+    Script-->>User: Show "Copied!" button state & green dot indicators
+```
+
+* **Who fetches the transcript?** The `@youtube-transcript/scraper` library (embedded in `@youtube-transcript/server`) coordinates the requests to YouTube.
+* **Who copies to the clipboard?** The browser-level userscript processes the returned text and writes it to your system clipboard using Tampermonkey's `GM_setClipboard`.
+* **Who persists the state?** The userscript saves the copied video ID locally via Tampermonkey storage so that the button can reflect a "previously copied" indicator (a green dot) if you revisit the page.
+
+---
+
+### 2. Alternative Workflow (Command-Line Interface / CLI)
+
+This is the developer workflow. You run the scraping pipeline directly in your terminal, and can optionally output transcripts, save debug files, or copy to the clipboard.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Dev as Developer / Terminal
+    participant CLI as CLI wrapper (packages/cli)
+    participant Scraper as Scraper Library (packages/scraper)
+    participant YouTube as YouTube API
+    participant System as System Clipboard
+
+    Dev->>CLI: bun run cli <videoId-or-URL> --copy --debug
+    CLI->>Scraper: Call fetchTranscript(videoId, config) in-memory
+    Scraper->>YouTube: Fetch watch page, caption track list, and XML transcript
+    Scraper->>Scraper: Parse and format output
+    Scraper-->>CLI: Return transcript and metadata
+    CLI->>Dev: Print formatted transcript to stdout
+    Note over CLI,System: If --copy / -c flag is passed
+    CLI->>System: Copy transcript text using clipboardy library
+    Note over Scraper: If --debug flag is passed
+    Scraper->>CLI: Write raw logs, HTML, and JSON to ./debug/
+```
+
+* **Who fetches the transcript?** The `@youtube-transcript/scraper` library (imported by `@youtube-transcript/cli`).
+* **Who copies to the clipboard?** The `@youtube-transcript/cli` package, utilizing the `clipboardy` library to interface with your OS clipboard.
+* **Who writes debug files?** The `@youtube-transcript/scraper` debug handler writes intermediate HTTP responses to a local `./debug` directory if the `--debug` flag is passed.
+
