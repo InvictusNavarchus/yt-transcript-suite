@@ -11,14 +11,14 @@
 		"@types/node": "^26.0.1"
 	},
 	"scripts": {
-		"cli": "bun --filter '@youtube-transcript/cli' run cli",
-		"inspect": "bun --filter '@youtube-transcript/cli' run inspect",
-		"dev:server": "bun --filter '@youtube-transcript/server' run dev",
-		"dev:userscript": "bun --filter '@youtube-transcript/userscript' run dev",
-		"build:scraper": "bun --filter '@youtube-transcript/scraper' run build",
-		"build:userscript": "bun --filter '@youtube-transcript/userscript' run build",
-		"typecheck": "bun --filter '*' run typecheck",
-		"test": "bun --filter '@youtube-transcript/scraper' run test",
+		"cli": "bun run --filter '@youtube-transcript/cli' cli",
+		"inspect": "bun run --filter '@youtube-transcript/cli' inspect",
+		"dev:server": "bun run --filter '@youtube-transcript/server' dev",
+		"dev:userscript": "bun run --filter '@youtube-transcript/userscript' dev",
+		"build:scraper": "bun run --filter '@youtube-transcript/scraper' build",
+		"build:userscript": "bun run --filter '@youtube-transcript/userscript' build",
+		"typecheck": "bun run --filter '*' typecheck",
+		"test": "bun run --filter '@youtube-transcript/scraper' test",
 		"format": "bunx @biomejs/biome format --write .",
 		"lint": "bunx @biomejs/biome lint .",
 		"prepare": "lefthook install"
