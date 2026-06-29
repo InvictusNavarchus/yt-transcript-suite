@@ -1,5 +1,5 @@
 import type { Storage } from '../services/storage';
-import { createButton } from '../ui/button';
+import { createButton, setButtonState } from '../ui/button';
 
 const INJECTED_ATTR = 'data-transcript-btn-injected';
 
@@ -77,29 +77,62 @@ const METADATA_VM = 'yt-lockup-metadata-view-model';
 
 export function injectIntoCard(card: Element, storage: Storage): void {
 	const videoId = extractVideoId(card);
-	if (!videoId) return;
+	if (!videoId) {
+		// Clean up button if it exists but no video ID is found
+		const btn = card.querySelector('.yt-transcript-btn');
+		if (btn) {
+			btn.remove();
+		}
+		card.removeAttribute(INJECTED_ATTR);
+		const metadataVM = card.querySelector(METADATA_VM);
+		if (metadataVM) {
+			metadataVM.removeAttribute(INJECTED_ATTR);
+		}
+		return;
+	}
 
-	if (card.hasAttribute(INJECTED_ATTR)) return;
+	// Check if a button already exists in this card
+	const btn = card.querySelector<HTMLButtonElement>('.yt-transcript-btn');
+	if (btn) {
+		const currentBtnVideoId = btn.getAttribute('data-video-id');
+		if (currentBtnVideoId !== videoId) {
+			// Video ID changed, update the button!
+			btn.setAttribute('data-video-id', videoId);
+			const state = storage.hasCopied(videoId) ? 'copied' : 'idle';
+			setButtonState(btn, state);
+		} else {
+			// Video ID is correct, but sync the copied state if it changed in storage
+			const currentState = btn.getAttribute('data-state');
+			const expectedState = storage.hasCopied(videoId) ? 'copied' : 'idle';
+			if (
+				(currentState === 'idle' || currentState === 'copied') &&
+				currentState !== expectedState
+			) {
+				setButtonState(btn, expectedState);
+			}
+		}
+		return;
+	}
 
 	const initialState = storage.hasCopied(videoId) ? 'copied' : 'idle';
-	const btn = createButton(videoId, storage, initialState);
+	const newBtn = createButton(videoId, storage, initialState);
 
 	const metadataVM = card.querySelector(METADATA_VM);
 	if (metadataVM) {
-		if (metadataVM.hasAttribute(INJECTED_ATTR)) return;
+		if (metadataVM.querySelector('.yt-transcript-btn')) return;
 		metadataVM.setAttribute(INJECTED_ATTR, '1');
 
 		let injected = false;
 		if (isWatchPage()) {
-			injected = injectWatchPage(metadataVM, btn);
+			injected = injectWatchPage(metadataVM, newBtn);
 		} else {
-			injectFeedCard(metadataVM, btn);
+			injectFeedCard(metadataVM, newBtn);
 			injected = true;
 		}
 
 		if (!injected) return;
 	} else {
-		if (!injectSearchCard(card, btn)) return;
+		if (!injectSearchCard(card, newBtn)) return;
 	}
 
 	card.setAttribute(INJECTED_ATTR, '1');
@@ -117,9 +150,7 @@ const CARD_SELECTORS = [
 ];
 
 export function injectAll(storage: Storage): void {
-	const selector = CARD_SELECTORS.map(
-		(s) => `${s}:not([${INJECTED_ATTR}])`,
-	).join(',');
+	const selector = CARD_SELECTORS.join(',');
 
 	document.querySelectorAll(selector).forEach((card) => {
 		injectIntoCard(card, storage);

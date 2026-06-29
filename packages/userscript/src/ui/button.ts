@@ -13,7 +13,7 @@ const SUCCESS_RESET_MS = 3000;
 
 // ─── STATE MACHINE ────────────────────────────────────────────────────────────
 
-function setButtonState(
+export function setButtonState(
 	btn: HTMLButtonElement,
 	state: ButtonState,
 	errorMsg?: string,
@@ -102,6 +102,7 @@ export function createButton(
 	const btn = document.createElement('button');
 	btn.className = 'yt-transcript-btn';
 	btn.type = 'button';
+	btn.setAttribute('data-video-id', videoId);
 
 	const dot = document.createElement('span');
 	dot.className = 'btn-dot';
@@ -120,7 +121,10 @@ export function createButton(
 	btn.addEventListener('click', (e) => {
 		e.preventDefault();
 		e.stopPropagation();
-		void handleClick(btn, videoId, storage);
+		const currentVideoId = btn.getAttribute('data-video-id');
+		if (currentVideoId) {
+			void handleClick(btn, currentVideoId, storage);
+		}
 	});
 
 	setButtonState(btn, initialState);
