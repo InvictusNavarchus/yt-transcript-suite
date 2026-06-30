@@ -8,7 +8,7 @@ export default defineConfig({
 			userscript: {
 				name: 'YouTube Copy Transcript',
 				namespace: 'http://tampermonkey.net/',
-				version: '0.0.0',
+				version: '0.2.0',
 				description:
 					'Adds a "Copy Transcript" button to every YouTube video card. Remembers which videos you\'ve already copied.',
 				author: 'You',
