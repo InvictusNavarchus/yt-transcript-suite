@@ -7,11 +7,11 @@ export default defineConfig({
 			entry: 'src/main.ts',
 			userscript: {
 				name: 'YouTube Copy Transcript',
-				namespace: 'http://tampermonkey.net/',
+				namespace: 'https://github.com/InvictusNavarchus/yt-transcript-suite',
 				version: '0.2.0',
 				description:
 					'Adds a "Copy Transcript" button to every YouTube video card. Remembers which videos you\'ve already copied.',
-				author: 'You',
+				author: 'Invictus Navarchus',
 				match: ['https://www.youtube.com/*'],
 				grant: [
 					'GM_xmlhttpRequest',
