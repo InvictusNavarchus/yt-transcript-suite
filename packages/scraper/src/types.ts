@@ -24,7 +24,7 @@ export interface TranscriptResponse {
 	text: string;
 	duration: number;
 	offset: number;
-	lang: string;
+	lang?: string;
 }
 
 export interface VideoMetadata {

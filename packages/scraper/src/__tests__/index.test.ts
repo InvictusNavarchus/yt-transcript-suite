@@ -11,7 +11,6 @@ import {
 	YoutubeTranscriptVideoUnavailableError,
 } from '../errors';
 import { fetchTranscript } from '../index';
-import { retrieveVideoId } from '../utils';
 
 const fixturesDir = path.join(process.cwd(), 'src', '__tests__', 'fixtures');
 
@@ -210,54 +209,92 @@ describe('fetchTranscript', () => {
 			{ text: 'Custom transcript', duration: 2.0, offset: 0 },
 		]);
 	});
-});
 
-describe('retrieveVideoId', () => {
-	it('should return the video ID from a valid YouTube URL', () => {
-		const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ';
-		expect(retrieveVideoId(url)).toBe('dQw4w9WgXcQ');
-	});
+	it('should return transcript in SRT format when requested', async () => {
+		mockWatchPage();
+		mockPlayer(loadJsonFixture('player-success.json'));
+		mockTranscript();
 
-	it('should return the video ID from a short YouTube URL', () => {
-		const url = 'https://youtu.be/dQw4w9WgXcQ';
-		expect(retrieveVideoId(url)).toBe('dQw4w9WgXcQ');
-	});
+		const result = await fetchTranscript(VIDEO_ID, { format: 'srt' });
 
-	it('should return the video ID from an embedded YouTube URL', () => {
-		const url = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
-		expect(retrieveVideoId(url)).toBe('dQw4w9WgXcQ');
-	});
-
-	it('should return the video ID from a live YouTube URL', () => {
-		const url = 'https://www.youtube.com/live/dQw4w9WgXcQ';
-		expect(retrieveVideoId(url)).toBe('dQw4w9WgXcQ');
-	});
-
-	it('should return the video ID from a YouTube Shorts URL', () => {
-		const url = 'https://youtube.com/shorts/dQw4w9WgXcQ';
-		expect(retrieveVideoId(url)).toBe('dQw4w9WgXcQ');
-	});
-
-	it('should throw an error for an invalid YouTube URL', () => {
-		const url = 'https://www.youtube.com/watch?v=invalid';
-		expect(() => retrieveVideoId(url)).toThrow(
-			YoutubeTranscriptInvalidVideoIdError,
+		expect(result).toBe(
+			'1\n00:00:00,000 --> 00:00:01,500\nHello world\n\n2\n00:00:01,500 --> 00:00:03,500\nSecond line\n',
 		);
 	});
 
-	it('should throw an error for a non-YouTube URL', () => {
-		const url = 'https://www.google.com';
-		expect(() => retrieveVideoId(url)).toThrow(
-			YoutubeTranscriptInvalidVideoIdError,
+	it('should return transcript in VTT format when requested', async () => {
+		mockWatchPage();
+		mockPlayer(loadJsonFixture('player-success.json'));
+		mockTranscript();
+
+		const result = await fetchTranscript(VIDEO_ID, { format: 'vtt' });
+
+		expect(result).toBe(
+			'WEBVTT\n\n00:00:00.000 --> 00:00:01.500\nHello world\n\n00:00:01.500 --> 00:00:03.500\nSecond line\n',
 		);
 	});
 
-	it('should reject 11-character strings with special characters', () => {
-		expect(() => retrieveVideoId('../.././../.')).toThrow(
-			YoutubeTranscriptInvalidVideoIdError,
-		);
-		expect(() => retrieveVideoId('hello world')).toThrow(
-			YoutubeTranscriptInvalidVideoIdError,
+	it('should return transcript in plain text format when requested', async () => {
+		mockWatchPage();
+		mockPlayer(loadJsonFixture('player-success.json'));
+		mockTranscript();
+
+		const result = await fetchTranscript(VIDEO_ID, { format: 'text' });
+
+		expect(result).toBe('Hello world\nSecond line');
+	});
+
+	it('should include metadata when requested', async () => {
+		mockWatchPage();
+		const playerResponse = {
+			...loadJsonFixture('player-success.json'),
+			videoDetails: {
+				title: 'Test Video',
+				author: 'Test Author',
+			},
+		};
+		mockPlayer(playerResponse);
+		mockTranscript();
+
+		const result = await fetchTranscript(VIDEO_ID, { includeMetadata: true });
+
+		expect(result).toEqual({
+			transcript: [
+				{ text: 'Hello world', duration: 1.5, offset: 0 },
+				{ text: 'Second line', duration: 2.0, offset: 1.5 },
+			],
+			metadata: {
+				title: 'Test Video',
+				description: undefined,
+				durationSeconds: undefined,
+				author: 'Test Author',
+				channelId: undefined,
+				keywords: undefined,
+				url: `https://www.youtube.com/watch?v=${VIDEO_ID}`,
+				videoId: VIDEO_ID,
+			},
+		});
+	});
+
+	it('should trigger debug logs when debug is enabled', async () => {
+		mockWatchPage();
+		mockPlayer(loadJsonFixture('player-success.json'));
+		mockTranscript();
+
+		const { DebugWriter } = await import('../lib/debug');
+		const writeSpy = vi
+			.spyOn(DebugWriter.prototype, 'write')
+			.mockResolvedValue('mock-path');
+
+		await fetchTranscript(VIDEO_ID, {
+			debug: true,
+			debugDir: 'custom-debug-dir',
+		});
+
+		expect(writeSpy).toHaveBeenCalled();
+		expect(writeSpy).toHaveBeenCalledWith(
+			'00-watch-page.html',
+			expect.any(String),
 		);
 	});
 });

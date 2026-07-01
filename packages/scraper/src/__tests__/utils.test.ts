@@ -1,6 +1,12 @@
 import { vi } from 'vitest';
 import { YoutubeTranscriptInvalidVideoIdError } from '../errors';
-import { decodeXmlEntities, defaultFetch, retrieveVideoId } from '../utils';
+import {
+	decodeXmlEntities,
+	defaultFetch,
+	extractVideoMetadata,
+	metadataObjToYaml,
+	retrieveVideoId,
+} from '../utils';
 
 describe('defaultFetch', () => {
 	let fetchSpy: ReturnType<typeof vi.spyOn>;
@@ -204,5 +210,98 @@ describe('decodeXmlEntities', () => {
 
 	it('should return plain text unchanged', () => {
 		expect(decodeXmlEntities('Hello world')).toBe('Hello world');
+	});
+});
+
+describe('extractVideoMetadata', () => {
+	it('should extract correct metadata from player response', () => {
+		const mockPlayerResponse = {
+			videoDetails: {
+				title: 'Test Title',
+				lengthSeconds: '120',
+				author: 'Test Author',
+				channelId: 'UC12345',
+				keywords: ['tag1', 'tag2'],
+			},
+			microformat: {
+				description: {
+					simpleText: 'Test Description',
+				},
+			},
+			playabilityStatus: { status: 'OK' },
+		};
+
+		const metadata = extractVideoMetadata(
+			mockPlayerResponse as any,
+			'dQw4w9WgXcQ',
+		);
+
+		expect(metadata).toEqual({
+			title: 'Test Title',
+			description: 'Test Description',
+			durationSeconds: 120,
+			author: 'Test Author',
+			channelId: 'UC12345',
+			keywords: ['tag1', 'tag2'],
+			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			videoId: 'dQw4w9WgXcQ',
+		});
+	});
+
+	it('should handle missing microformat and lengthSeconds gracefully', () => {
+		const mockPlayerResponse = {
+			videoDetails: {
+				title: 'Test Title',
+				author: 'Test Author',
+				channelId: 'UC12345',
+			},
+			playabilityStatus: { status: 'OK' },
+		};
+
+		const metadata = extractVideoMetadata(
+			mockPlayerResponse as any,
+			'dQw4w9WgXcQ',
+		);
+
+		expect(metadata).toEqual({
+			title: 'Test Title',
+			description: undefined,
+			durationSeconds: undefined,
+			author: 'Test Author',
+			channelId: 'UC12345',
+			keywords: undefined,
+			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			videoId: 'dQw4w9WgXcQ',
+		});
+	});
+});
+
+describe('metadataObjToYaml', () => {
+	it('should format simple metadata object to YAML', () => {
+		const metadata = {
+			title: 'Test Title',
+			author: 'Test Author',
+			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			videoId: 'dQw4w9WgXcQ',
+		};
+
+		const yaml = metadataObjToYaml(metadata);
+		expect(yaml).toBe(
+			'---\ntitle: Test Title\nauthor: Test Author\nurl: https://www.youtube.com/watch?v=dQw4w9WgXcQ\nvideoId: dQw4w9WgXcQ\n---',
+		);
+	});
+
+	it('should format metadata with arrays to YAML', () => {
+		const metadata = {
+			title: 'Test Title',
+			keywords: ['tag1', 'tag2'],
+			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+			videoId: 'dQw4w9WgXcQ',
+		};
+
+		const yaml = metadataObjToYaml(metadata);
+		expect(yaml).toBe(
+			'---\ntitle: Test Title\nkeywords:\n  - tag1\n  - tag2\nurl: https://www.youtube.com/watch?v=dQw4w9WgXcQ\nvideoId: dQw4w9WgXcQ\n---',
+		);
 	});
 });

@@ -56,11 +56,11 @@ export function jsonTranscriptToSrt(transcript: TranscriptResponse[]): string {
 		.map((item, index) => {
 			const start = new Date(item.offset * 1000)
 				.toISOString()
-				.substring(11, 12)
+				.substring(11, 23)
 				.replace('.', ',');
 			const end = new Date((item.offset + item.duration) * 1000)
 				.toISOString()
-				.substring(11, 12)
+				.substring(11, 23)
 				.replace('.', ',');
 			return `${index + 1}\n${start} --> ${end}\n${item.text}\n`;
 		})
@@ -73,12 +73,10 @@ export function jsonTranscriptToVtt(transcript: TranscriptResponse[]): string {
 		.map((item) => {
 			const start = new Date(item.offset * 1000)
 				.toISOString()
-				.substring(11, 12)
-				.replace('.', '.');
+				.substring(11, 23);
 			const end = new Date((item.offset + item.duration) * 1000)
 				.toISOString()
-				.substring(11, 12)
-				.replace('.', '.');
+				.substring(11, 23);
 			return `${start} --> ${end}\n${item.text}\n`;
 		})
 		.join('\n');
