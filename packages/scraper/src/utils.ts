@@ -82,6 +82,7 @@ export function extractVideoMetadata(
 
 	return {
 		title: videoDetails?.title,
+		publishedDate,
 		description: microformat?.description?.simpleText,
 		durationSeconds: videoDetails?.lengthSeconds
 			? parseInt(videoDetails.lengthSeconds, 10)
@@ -89,7 +90,6 @@ export function extractVideoMetadata(
 		author: videoDetails?.author,
 		channelId: videoDetails?.channelId,
 		keywords: videoDetails?.keywords,
-		publishedDate,
 		url: `https://www.youtube.com/watch?v=${videoId}`,
 		videoId,
 	};
