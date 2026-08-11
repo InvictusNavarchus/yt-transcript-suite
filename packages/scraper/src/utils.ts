@@ -56,18 +56,29 @@ export async function defaultFetch(params: FetchParams): Promise<Response> {
 }
 
 /**
- * Extract video metadata from YouTube player response
+ * Extract video metadata from YouTube player response and watch page HTML
  * @param playerResponse - The player response from YouTube's Innertube API
  * @param videoId - The video ID
+ * @param watchPageHtml - Optional HTML content of YouTube watch page
  * @returns Video metadata object with title, description, author, etc.
  */
 export function extractVideoMetadata(
 	playerResponse: YouTubePlayerResponse,
 	videoId: string,
+	watchPageHtml?: string,
 ): VideoMetadata {
 	// Try to get videoDetails from the response
 	const videoDetails = playerResponse.videoDetails;
 	const microformat = playerResponse.microformat;
+
+	const publishedDateMatch =
+		watchPageHtml?.match(
+			/itemprop="(?:datePublished|uploadDate)"\s+content="([^"]+)"/i,
+		) || watchPageHtml?.match(/"(?:publishDate|uploadDate)"\s*:\s*"([^"]+)"/i);
+	const publishedDate =
+		publishedDateMatch?.[1] ??
+		microformat?.playerMicroformatRenderer?.publishDate ??
+		microformat?.playerMicroformatRenderer?.uploadDate;
 
 	return {
 		title: videoDetails?.title,
@@ -78,6 +89,7 @@ export function extractVideoMetadata(
 		author: videoDetails?.author,
 		channelId: videoDetails?.channelId,
 		keywords: videoDetails?.keywords,
+		publishedDate,
 		url: `https://www.youtube.com/watch?v=${videoId}`,
 		videoId,
 	};

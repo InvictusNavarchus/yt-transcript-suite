@@ -85,7 +85,7 @@ export async function fetchTranscript(
 
 	// Extract metadata early for debug output
 	const metadata = config?.includeMetadata
-		? extractVideoMetadata(playerJson, identifier)
+		? extractVideoMetadata(playerJson, identifier, watchPageHtml)
 		: undefined;
 
 	if (metadata) {

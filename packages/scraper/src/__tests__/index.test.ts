@@ -270,6 +270,7 @@ describe('fetchTranscript', () => {
 				author: 'Test Author',
 				channelId: undefined,
 				keywords: undefined,
+				publishedDate: undefined,
 				url: `https://www.youtube.com/watch?v=${VIDEO_ID}`,
 				videoId: VIDEO_ID,
 			},

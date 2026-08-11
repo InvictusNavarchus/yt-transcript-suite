@@ -40,6 +40,8 @@ export interface VideoMetadata {
 	channelId?: string;
 	/** Keywords associated with the video */
 	keywords?: string[];
+	/** Published date ISO string */
+	publishedDate?: string;
 	/** YouTube video URL */
 	url: string;
 	/** Video ID */
@@ -97,6 +99,10 @@ export interface MicroFormat {
 	title?: { simpleText?: string };
 	description?: { simpleText?: string };
 	lengthSeconds?: string;
+	playerMicroformatRenderer?: {
+		publishDate?: string;
+		uploadDate?: string;
+	};
 }
 
 export interface YouTubePlayerResponse {

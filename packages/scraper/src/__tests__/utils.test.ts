@@ -243,9 +243,29 @@ describe('extractVideoMetadata', () => {
 			author: 'Test Author',
 			channelId: 'UC12345',
 			keywords: ['tag1', 'tag2'],
+			publishedDate: undefined,
 			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 			videoId: 'dQw4w9WgXcQ',
 		});
+	});
+
+	it('should extract publishedDate from watch page HTML when provided', () => {
+		const mockPlayerResponse = {
+			videoDetails: {
+				title: 'Test Title',
+			},
+			playabilityStatus: { status: 'OK' },
+		};
+		const mockHtml =
+			'<meta itemprop="datePublished" content="2025-07-07T09:24:58-07:00">';
+
+		const metadata = extractVideoMetadata(
+			mockPlayerResponse as any,
+			'dQw4w9WgXcQ',
+			mockHtml,
+		);
+
+		expect(metadata.publishedDate).toBe('2025-07-07T09:24:58-07:00');
 	});
 
 	it('should handle missing microformat and lengthSeconds gracefully', () => {
@@ -270,6 +290,7 @@ describe('extractVideoMetadata', () => {
 			author: 'Test Author',
 			channelId: 'UC12345',
 			keywords: undefined,
+			publishedDate: undefined,
 			url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
 			videoId: 'dQw4w9WgXcQ',
 		});
