@@ -38,11 +38,26 @@ require_systemd() {
 }
 
 uninstall() {
-    require_systemd
-    # Tolerate an already-absent unit: this is idempotency, not error hiding.
-    systemctl --user disable --now "$UNIT_NAME" >/dev/null 2>&1 || true
-    rm -f "$UNIT_PATH"
-    systemctl --user daemon-reload
+    # Deliberately NOT require_systemd: that dies when no user manager is
+    # live, which would abort before the rm below and leave the unit file in
+    # place -- so an "uninstall" that reported failure would still bring the
+    # service back at the next login. Removing the file is the part that must
+    # always happen; stopping a service is only meaningful if a manager is
+    # there to stop it.
+    if command -v systemctl >/dev/null 2>&1 \
+        && systemctl --user show-environment >/dev/null 2>&1; then
+        # Tolerate an already-absent unit: this is idempotency, not error hiding.
+        systemctl --user disable --now "$UNIT_NAME" >/dev/null 2>&1 || true
+        rm -f "$UNIT_PATH"
+        systemctl --user daemon-reload
+    else
+        rm -f "$UNIT_PATH"
+        # `disable` is what normally removes this symlink; without a manager
+        # to run it, drop the link by hand so we do not leave a dangling
+        # entry that makes a later daemon-reload complain.
+        rm -f "$UNIT_DIR/default.target.wants/$UNIT_NAME"
+        warn "No systemd user instance; removed the unit file without stopping it."
+    fi
     info "Removed $UNIT_NAME. Your .env and node_modules were left alone."
     exit 0
 }
@@ -65,10 +80,21 @@ require_systemd
 BUN="$(command -v bun 2>/dev/null || true)"
 [[ -n "$BUN" ]] || die "bun is not on PATH. Install it: https://bun.sh"
 
-# The unit is rendered with sed using '|' as the delimiter.
+# Both values are substituted into the unit with sed and then parsed by
+# systemd, so three separate layers can be corrupted by an unlucky path:
+#   |        the sed delimiter
+#   & and \  sed replacement syntax (& is the whole match)
+#   %        a systemd specifier introducer, e.g. %h -- an unknown one makes
+#            the unit fail to parse
+#   space    systemd splits ExecStart on whitespace, so a space in $BUN would
+#            silently become two arguments
+# Rejecting is deliberate over escaping: a loud refusal beats rendering a
+# subtly broken unit that then restart-loops under Restart=always.
 for path in "$REPO_ROOT" "$BUN"; do
     case "$path" in
-        *"|"*) die "path contains '|', which would corrupt the unit file: $path" ;;
+        *[\|\&\\%[:space:]]*)
+            die "path contains a character that would corrupt the unit file
+       (one of: | & \\ %% or whitespace): $path" ;;
     esac
 done
 
@@ -97,8 +123,24 @@ if [[ -f "$ENV_FILE" ]]; then
        The server would require that literal value and reject every request.
        Set a real key, or delete the line to run without authentication."
     fi
-    env_port="$(sed -n 's/^[[:space:]]*PORT[[:space:]]*=[[:space:]]*\([0-9]\{1,5\}\)[[:space:]]*$/\1/p' "$ENV_FILE" | tail -n1)"
-    [[ -n "$env_port" ]] && PORT="$env_port"
+    # Tolerates `export PORT=3456`, quotes, and a trailing comment, because
+    # the value found here drives the conflict check and the URL printed at
+    # the end. Missing a quoted PORT would silently guard the wrong port.
+    env_port="$(sed -n -E \
+        's/^[[:space:]]*(export[[:space:]]+)?PORT[[:space:]]*=[[:space:]]*"?'"'"'?([0-9]+)'"'"'?"?[[:space:]]*(#.*)?$/\2/p' \
+        "$ENV_FILE" | tail -n1)"
+    if [[ -n "$env_port" ]]; then
+        # Range-check rather than trusting the digits: Bun would reject an
+        # out-of-range port at startup, and under Restart=always that is an
+        # invisible loop rather than a visible error.
+        if (( env_port < 1 || env_port > 65535 )); then
+            die "PORT=$env_port in .env is out of range (1-65535)."
+        fi
+        PORT="$env_port"
+    elif grep -qE '^[[:space:]]*(export[[:space:]]+)?PORT[[:space:]]*=' "$ENV_FILE"; then
+        die "PORT is set in .env but could not be parsed as a number.
+       The installer needs it to check for port conflicts."
+    fi
 else
     warn "No .env at $REPO_ROOT. Using PORT=$PORT with authentication disabled."
 fi
