@@ -33,6 +33,11 @@ function jsonError(message: string, status: number): Response {
 
 const server = Bun.serve({
 	port: PORT,
+	// Loopback only. Bun defaults to 0.0.0.0, which published the
+	// unauthenticated /transcript endpoint to the whole LAN — anyone on the
+	// network could pull transcripts through this machine's residential IP.
+	// The only client is the userscript, which hardcodes http://localhost:3456.
+	hostname: '127.0.0.1',
 	idleTimeout: 60, // transcripts can take a moment
 
 	routes: {
