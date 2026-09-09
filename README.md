@@ -28,11 +28,13 @@ bun install
 ```
 
 ### 2. Configure Environment Variables
-Copy `.env.example` to `.env` in the root directory:
+This step is optional -- the server runs on port 3456 without authentication if no `.env` exists. To change either, copy the example and **edit it**:
 ```bash
 cp .env.example .env
 ```
-*(Optionally define a `SERVER_API_KEY` for authenticating calls between the userscript and the server. If configured, you should also create `packages/userscript/.env` containing `VITE_TRANSCRIPT_API_KEY=your_key`)*
+> **Important:** `.env.example` ships `SERVER_API_KEY=your_secure_api_key_here` as a placeholder. Copying it unedited does not leave auth disabled -- it makes the server require that literal string, so every userscript request comes back `401`. Either set a real key or delete the line entirely.
+
+*(If you do define a `SERVER_API_KEY`, you should also create `packages/userscript/.env` containing `VITE_TRANSCRIPT_API_KEY=your_key`)*
 
 ### 3. Autostart the Server (Optional)
 The server has to be running for the userscript to work. To have it start automatically at login instead of launching it by hand every boot:
