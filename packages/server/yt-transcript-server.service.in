@@ -1,0 +1,28 @@
+# Template. install.sh renders @REPO_ROOT@ and @BUN@ and writes the result to
+# ~/.config/systemd/user/. Don't install this file directly.
+
+[Unit]
+Description=YouTube transcript local bridge server
+# No ordering against network-online.target on purpose: Bun.serve binds the
+# loopback port unconditionally at startup and only reaches out to YouTube
+# per-request, so coming up before the network does is harmless.
+
+[Service]
+Type=simple
+# The monorepo root, NOT packages/server. Bun auto-loads .env relative to the
+# working directory, and .env lives at the root (see .env.example). Point this
+# at the package directory and PORT/SERVER_API_KEY silently stop being read.
+WorkingDirectory=@REPO_ROOT@
+# The entrypoint directly, not `bun run --filter ... start`. That wrapper
+# spawns a child bun to do the actual work, which would leave systemd
+# supervising the wrapper: the MAINPID would be wrong and signals on stop
+# would land on the parent instead of the server.
+#
+# @BUN@ is an absolute path because systemd user units inherit a minimal PATH
+# that does not include ~/.bun/bin. A bare `bun` here fails with 203/EXEC.
+ExecStart=@BUN@ packages/server/src/index.ts
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

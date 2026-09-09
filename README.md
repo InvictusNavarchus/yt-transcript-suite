@@ -34,6 +34,22 @@ cp .env.example .env
 ```
 *(Optionally define a `SERVER_API_KEY` for authenticating calls between the userscript and the server. If configured, you should also create `packages/userscript/.env` containing `VITE_TRANSCRIPT_API_KEY=your_key`)*
 
+### 3. Autostart the Server (Optional)
+The server has to be running for the userscript to work. To have it start automatically at login instead of launching it by hand every boot:
+```bash
+./install.sh
+```
+This installs a systemd **user** service (`yt-transcript-server.service`). Being a user service, it starts with your graphical session rather than at boot proper -- which is what you want, since the server is only useful once your browser is up. Run `loginctl enable-linger $USER` if you additionally need it reachable before login.
+
+Re-run `./install.sh` to apply any change to the unit template, and `./install.sh --uninstall` to remove it.
+
+```bash
+journalctl --user -u yt-transcript-server -f   # follow logs
+systemctl --user stop yt-transcript-server     # stop (frees the port for dev)
+```
+
+> **Note:** while the service is running it holds the port, so `bun run dev:server` will fail to bind. Stop the service before hot-reload work.
+
 ---
 
 ## Development & Utility Commands
@@ -45,6 +61,7 @@ Execute these commands from the root directory:
   ```bash
   bun run dev:server
   ```
+  *(Stop the systemd service first if you installed it -- see [Autostart](#3-autostart-the-server-optional) -- otherwise this fails to bind the port)*
 * **Build userscript:**
   ```bash
   bun run build:userscript

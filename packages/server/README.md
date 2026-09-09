@@ -24,6 +24,25 @@ Run these commands from the monorepo root:
   bun --filter "@youtube-transcript/server" start
   ```
 
+### 3. Autostart (systemd user service)
+Rather than starting the server by hand after every boot, install it as a systemd user service from the monorepo root:
+```bash
+./install.sh              # install, enable at login, and start
+./install.sh --uninstall  # stop, disable, and remove
+```
+
+The unit is rendered from [`yt-transcript-server.service.in`](./yt-transcript-server.service.in) into `~/.config/systemd/user/`. Two details in that template are load-bearing:
+
+* **`WorkingDirectory` is the monorepo root, not this package.** Bun auto-loads `.env` relative to the working directory, and `.env` lives at the root. Pointing it here would make `PORT` and `SERVER_API_KEY` silently stop being read.
+* **`ExecStart` runs `src/index.ts` directly**, not via `bun run --filter`. That wrapper spawns a child process to do the real work, which would leave systemd supervising the wrapper -- wrong `MainPID`, and stop signals landing on the parent instead of the server.
+
+```bash
+journalctl --user -u yt-transcript-server -f   # follow logs
+systemctl --user stop yt-transcript-server     # frees the port for `dev`
+```
+
+Because the service holds the port, stop it before running `bun run dev:server`.
+
 ---
 
 ## API Documentation
