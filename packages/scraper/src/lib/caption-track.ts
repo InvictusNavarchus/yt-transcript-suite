@@ -35,9 +35,14 @@ export function selectTrack(
 	lang: string | undefined,
 	identifier: string,
 ): CaptionTrack {
-	const selectedTrack = lang
-		? tracks.find((t) => t.languageCode === lang)
-		: tracks[0];
+	let selectedTrack: CaptionTrack | undefined;
+	if (lang) {
+		selectedTrack = tracks.find((t) => t.languageCode === lang);
+	} else {
+		// default to English
+		selectedTrack =
+			tracks.find((t) => t.languageCode?.startsWith('en')) ?? tracks[0];
+	}
 
 	if (!selectedTrack) {
 		const available = tracks.map((t) => t.languageCode).filter(Boolean);
