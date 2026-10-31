@@ -73,8 +73,9 @@ export async function fetchTranscript(
 		tracks,
 	});
 
-	const track = selectTrack(tracks, lang, identifier);
+	const { track, decision } = selectTrack(tracks, lang, identifier, playerJson);
 	await debug.writeJson('03-selected-track.json', track);
+	await debug.writeJson('03-selection-decision.json', decision);
 
 	const transcriptUrl = buildTranscriptUrl(track, identifier);
 	const xml = await fetchTranscriptXml(transcriptUrl, identifier, config);

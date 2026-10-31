@@ -86,6 +86,46 @@ describe('fetchTranscript', () => {
 		]);
 	});
 
+	it('downloads Indonesian captions when the original audio is Indonesian and English is a dub', async () => {
+		mockWatchPage();
+		mockPlayer({
+			playabilityStatus: { status: 'OK' },
+			captions: {
+				playerCaptionsTracklistRenderer: {
+					captionTracks: ['en', 'id'].map((languageCode) => ({
+						baseUrl: `https://www.youtube.com/api/timedtext?lang=${languageCode}&v=${VIDEO_ID}`,
+						languageCode,
+						kind: 'asr',
+					})),
+				},
+			},
+			streamingData: {
+				adaptiveFormats: [
+					{ audioTrack: { id: 'id.4', displayName: 'Indonesian original' } },
+					{
+						audioTrack: {
+							id: 'en-US.10',
+							displayName: 'English (US)',
+							audioIsDefault: true,
+							isAutoDubbed: true,
+						},
+					},
+				],
+			},
+		});
+		const captions = nock('https://www.youtube.com')
+			.get('/api/timedtext')
+			.query({ lang: 'id', v: VIDEO_ID })
+			.reply(
+				200,
+				'<transcript><text start="0" dur="1">Halo dunia</text></transcript>',
+			);
+		expect(await fetchTranscript(VIDEO_ID)).toEqual([
+			{ text: 'Halo dunia', duration: 1, offset: 0 },
+		]);
+		expect(captions.isDone()).toBe(true);
+	});
+
 	it('should throw YoutubeTranscriptInvalidVideoIdError when video is invalid', async () => {
 		const videoId = 'invalidVideoId';
 		await expect(fetchTranscript(videoId)).rejects.toThrow(
@@ -297,6 +337,14 @@ describe('fetchTranscript', () => {
 			'00-watch-page.html',
 			expect.any(String),
 		);
+		const decision = writeSpy.mock.calls.find(
+			([filename]) => filename === '03-selection-decision.json',
+		);
+		expect(JSON.parse(String(decision?.[1]))).toMatchObject({
+			targetLanguage: 'en',
+			selectedLanguage: 'en',
+			reason: 'dedicated-target-language',
+		});
 	});
 });
 

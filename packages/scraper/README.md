@@ -91,7 +91,28 @@ fetchTranscript('videoId_or_URL', {
 
 ### Language Support
 
-You can specify the language for the transcript using the `lang` option.
+Without `lang`, the scraper selects Indonesian for Indonesian originals and English
+for other or unknown original languages. It infers the original language from a
+unique audio track labeled `original`, or, when that label is absent, from a single
+automatic-caption language. The default playback audio may be a dub and is not
+used to identify the original language. These metadata signals are heuristics;
+they do not detect mixed speech, and ambiguous evidence defaults to English.
+
+Dedicated captions in the target language take priority over automatic captions.
+For Indonesian originals without dedicated Indonesian captions, dedicated English
+captions take priority over automatic Indonesian captions. Other dedicated
+languages do not override the target language. English variants such as `en-US`
+and `en-GB` count as English.
+
+You can override this selection using `lang`. A base language such as `en` accepts
+regional variants and prefers dedicated captions; a regional request such as
+`en-GB` requires that exact language tag. The scraper does not translate captions.
+If the required language is unavailable, it throws
+`YoutubeTranscriptNotAvailableLanguageError` instead of returning another language.
+
+With debugging enabled, `03-selection-decision.json` records the inferred
+language (when known), evidence, target language, selected language, caption kind,
+and selection reason alongside the existing `03-selected-track.json` artifact.
 
 ```javascript
 fetchTranscript('videoId_or_URL', {

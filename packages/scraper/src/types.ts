@@ -106,6 +106,17 @@ export interface MicroFormat {
 }
 
 export interface YouTubePlayerResponse {
+	/** Audio metadata used to distinguish original speech from dubbed defaults. */
+	streamingData?: {
+		adaptiveFormats?: Array<{
+			audioTrack?: {
+				id?: string;
+				displayName?: string;
+				audioIsDefault?: boolean;
+				isAutoDubbed?: boolean;
+			};
+		}>;
+	};
 	playabilityStatus?: {
 		status?: string;
 		/** Human-readable reason when status !== "OK" */

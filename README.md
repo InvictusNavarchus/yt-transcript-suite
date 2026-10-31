@@ -2,6 +2,12 @@
 
 A lightweight Bun workspace monorepo for downloading YouTube transcripts.
 
+Caption selection defaults to Indonesian for Indonesian originals and English for
+other or unknown original languages. Dedicated captions take priority, including
+dedicated English when an Indonesian original has no dedicated Indonesian captions.
+See [language selection and overrides](packages/scraper/README.md#language-support)
+for detection limits, regional language tags, and unavailable-language errors.
+
 ## Why this exists
 
 YouTube strictly rate-limits or blocks non-residential IP addresses (like those of Cloudflare Workers, AWS, or other cloud edge hosting). To reliably download transcripts, this project uses a client-side architecture:
