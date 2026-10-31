@@ -53,20 +53,20 @@ describe('caption selection', () => {
 		});
 	});
 
-	it.each([
-		'en-US',
-		'ja',
-	])('uses English for a %s original with Indonesian automatic captions', (language) => {
-		const english = track('en', 'asr');
-		expect(
-			selectTrack(
-				[track('id', 'asr'), english],
-				undefined,
-				'video',
-				original(language),
-			).track,
-		).toBe(english);
-	});
+	it.each(['en-US', 'ja'])(
+		'uses English for a %s original with Indonesian automatic captions',
+		(language) => {
+			const english = track('en', 'asr');
+			expect(
+				selectTrack(
+					[track('id', 'asr'), english],
+					undefined,
+					'video',
+					original(language),
+				).track,
+			).toBe(english);
+		},
+	);
 
 	it('infers Indonesian from a single automatic-caption language', () => {
 		const result = selectTrack([track('id', 'asr')], undefined, 'video', {});
@@ -77,17 +77,16 @@ describe('caption selection', () => {
 		});
 	});
 
-	it.each([
-		'en',
-		'en-US',
-		'en-GB',
-	])('prefers dedicated %s over automatic English regardless of ordering', (language) => {
-		const dedicated = track(language);
-		expect(
-			selectTrack([track('en', 'asr'), dedicated], undefined, 'video', {})
-				.track,
-		).toBe(dedicated);
-	});
+	it.each(['en', 'en-US', 'en-GB'])(
+		'prefers dedicated %s over automatic English regardless of ordering',
+		(language) => {
+			const dedicated = track(language);
+			expect(
+				selectTrack([track('en', 'asr'), dedicated], undefined, 'video', {})
+					.track,
+			).toBe(dedicated);
+		},
+	);
 
 	it('chooses dedicated captions matching the original when both languages are dedicated', () => {
 		const tracks = [track('en'), track('id'), track('id', 'asr')];
@@ -99,16 +98,16 @@ describe('caption selection', () => {
 		).toBe(tracks[0]);
 	});
 
-	it.each([
-		true,
-		false,
-	])('uses dedicated English without dedicated Indonesian (automatic Indonesian present: %s)', (hasAutomatic) => {
-		const english = track('en-US');
-		const tracks = hasAutomatic ? [track('id', 'asr'), english] : [english];
-		const result = selectTrack(tracks, undefined, 'video', original('id'));
-		expect(result.track).toBe(english);
-		expect(result.decision.reason).toBe('dedicated-english-fallback');
-	});
+	it.each([true, false])(
+		'uses dedicated English without dedicated Indonesian (automatic Indonesian present: %s)',
+		(hasAutomatic) => {
+			const english = track('en-US');
+			const tracks = hasAutomatic ? [track('id', 'asr'), english] : [english];
+			const result = selectTrack(tracks, undefined, 'video', original('id'));
+			expect(result.track).toBe(english);
+			expect(result.decision.reason).toBe('dedicated-english-fallback');
+		},
+	);
 
 	it('does not prefer dedicated Indonesian for a non-Indonesian original', () => {
 		const english = track('en', 'asr');

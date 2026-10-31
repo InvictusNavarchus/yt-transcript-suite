@@ -37,11 +37,11 @@ You can pass a custom `userAgent` string to mimic different browsers or devices.
 
 ```javascript
 fetchTranscript('videoId_or_URL', {
-  userAgent:
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+	userAgent:
+		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
 })
-  .then(console.log)
-  .catch(console.error);
+	.then(console.log)
+	.catch(console.error);
 ```
 
 ### Custom Fetch Functions
@@ -54,39 +54,48 @@ You can inject custom `videoFetch`, `playerFetch`, and `transcriptFetch` functio
 
 ```javascript
 fetchTranscript('videoId_or_URL', {
-  videoFetch: async ({ url, lang, userAgent }) => {
-    // Custom logic for video page fetch (GET)
-    return fetch(`https://my-proxy-server.com/?url=${encodeURIComponent(url)}`, {
-      headers: {
-        ...(lang && { 'Accept-Language': lang }),
-        'User-Agent': userAgent,
-      },
-    });
-  },
-  playerFetch: async ({ url, method, body, headers, lang, userAgent }) => {
-    // Custom logic for Innertube API call (POST)
-    return fetch(`https://my-proxy-server.com/?url=${encodeURIComponent(url)}`, {
-      method,
-      headers: {
-        ...(lang && { 'Accept-Language': lang }),
-        'User-Agent': userAgent,
-        ...headers,
-      },
-      body,
-    });
-  },
-  transcriptFetch: async ({ url, lang, userAgent }) => {
-    // Custom logic for transcript data fetch (GET)
-    return fetch(`https://my-proxy-server.com/?url=${encodeURIComponent(url)}`, {
-      headers: {
-        ...(lang && { 'Accept-Language': lang }),
-        'User-Agent': userAgent,
-      },
-    });
-  },
+	videoFetch: async ({ url, lang, userAgent }) => {
+		// Custom logic for video page fetch (GET)
+		return fetch(
+			`https://my-proxy-server.com/?url=${encodeURIComponent(url)}`,
+			{
+				headers: {
+					...(lang && { 'Accept-Language': lang }),
+					'User-Agent': userAgent,
+				},
+			},
+		);
+	},
+	playerFetch: async ({ url, method, body, headers, lang, userAgent }) => {
+		// Custom logic for Innertube API call (POST)
+		return fetch(
+			`https://my-proxy-server.com/?url=${encodeURIComponent(url)}`,
+			{
+				method,
+				headers: {
+					...(lang && { 'Accept-Language': lang }),
+					'User-Agent': userAgent,
+					...headers,
+				},
+				body,
+			},
+		);
+	},
+	transcriptFetch: async ({ url, lang, userAgent }) => {
+		// Custom logic for transcript data fetch (GET)
+		return fetch(
+			`https://my-proxy-server.com/?url=${encodeURIComponent(url)}`,
+			{
+				headers: {
+					...(lang && { 'Accept-Language': lang }),
+					'User-Agent': userAgent,
+				},
+			},
+		);
+	},
 })
-  .then(console.log)
-  .catch(console.error);
+	.then(console.log)
+	.catch(console.error);
 ```
 
 ### Language Support
@@ -116,10 +125,10 @@ and selection reason alongside the existing `03-selected-track.json` artifact.
 
 ```javascript
 fetchTranscript('videoId_or_URL', {
-  lang: 'fr', // Fetch transcript in French
+	lang: 'fr', // Fetch transcript in French
 })
-  .then(console.log)
-  .catch(console.error);
+	.then(console.log)
+	.catch(console.error);
 ```
 
 ### Error Handling
@@ -128,27 +137,31 @@ The library throws specific errors for different failure scenarios. Each error i
 
 ```javascript
 import {
-  YoutubeTranscriptVideoUnavailableError,
-  YoutubeTranscriptDisabledError,
-  YoutubeTranscriptNotAvailableError,
-  YoutubeTranscriptNotAvailableLanguageError,
+	YoutubeTranscriptVideoUnavailableError,
+	YoutubeTranscriptDisabledError,
+	YoutubeTranscriptNotAvailableError,
+	YoutubeTranscriptNotAvailableLanguageError,
 } from '@youtube-transcript/scraper';
 
 fetchTranscript('videoId_or_URL')
-  .then(console.log)
-  .catch((error) => {
-    if (error instanceof YoutubeTranscriptVideoUnavailableError) {
-      console.error('Video is unavailable:', error.videoId);
-    } else if (error instanceof YoutubeTranscriptDisabledError) {
-      console.error('Transcripts are disabled:', error.videoId);
-    } else if (error instanceof YoutubeTranscriptNotAvailableError) {
-      console.error('No transcript available:', error.videoId);
-    } else if (error instanceof YoutubeTranscriptNotAvailableLanguageError) {
-      console.error('Language not available:', error.lang, error.availableLangs);
-    } else {
-      console.error('An unexpected error occurred:', error.message);
-    }
-  });
+	.then(console.log)
+	.catch((error) => {
+		if (error instanceof YoutubeTranscriptVideoUnavailableError) {
+			console.error('Video is unavailable:', error.videoId);
+		} else if (error instanceof YoutubeTranscriptDisabledError) {
+			console.error('Transcripts are disabled:', error.videoId);
+		} else if (error instanceof YoutubeTranscriptNotAvailableError) {
+			console.error('No transcript available:', error.videoId);
+		} else if (error instanceof YoutubeTranscriptNotAvailableLanguageError) {
+			console.error(
+				'Language not available:',
+				error.lang,
+				error.availableLangs,
+			);
+		} else {
+			console.error('An unexpected error occurred:', error.message);
+		}
+	});
 ```
 
 ### TypeScript Types
@@ -157,9 +170,9 @@ All types are exported for TypeScript consumers:
 
 ```typescript
 import type {
-  TranscriptConfig,
-  TranscriptResponse,
-  FetchParams,
+	TranscriptConfig,
+	TranscriptResponse,
+	FetchParams,
 } from '@youtube-transcript/scraper';
 ```
 

@@ -19,6 +19,7 @@ When clicked, it sends a request to the local background server, receives the pl
 If you configured a `SERVER_API_KEY` on your local server, you must provide it to the userscript at build time:
 
 1. Create `packages/userscript/.env` (or copy from `packages/userscript/.env.example`):
+
    ```ini
    VITE_TRANSCRIPT_API_KEY=your_secure_api_key_here
    ```
@@ -28,6 +29,7 @@ If you configured a `SERVER_API_KEY` on your local server, you must provide it t
 ## Commands
 
 ### 1. Build for Production
+
 Run from the root of the monorepo:
 ```bash
 bun run build:userscript
@@ -41,8 +43,10 @@ This builds and outputs a single file:
 3. Save the script.
 
 ### 2. Development Mode
+
 To develop and see changes instantly without rebuilding:
 1. Start the Vite development script from the root:
+
    ```bash
    bun run dev:userscript
    ```

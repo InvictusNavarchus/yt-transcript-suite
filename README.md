@@ -18,31 +18,34 @@ YouTube strictly rate-limits or blocks non-residential IP addresses (like those 
 
 ## Package Directory Layout
 
-* **`packages/scraper`**: Core library that contacts YouTube's Innertube API, fetches the caption track, and parses it (zero build step in local development).
-* **`packages/server`**: Background HTTP API server that loads the scraper directly in-memory (no subprocess spawning).
-* **`packages/userscript`**: Browser userscript built using Vite and `vite-plugin-monkey`.
-* **`packages/cli`**: Command-line interfaces, tests, and debugging scripts.
+- **`packages/scraper`**: Core library that contacts YouTube's Innertube API, fetches the caption track, and parses it (zero build step in local development).
+- **`packages/server`**: Background HTTP API server that loads the scraper directly in-memory (no subprocess spawning).
+- **`packages/userscript`**: Browser userscript built using Vite and `vite-plugin-monkey`.
+- **`packages/cli`**: Command-line interfaces, tests, and debugging scripts.
 
 ---
 
 ## Getting Started
 
 ### 1. Install Dependencies
+
 Run from the root directory:
 ```bash
 bun install
 ```
 
 ### 2. Configure Environment Variables
+
 This step is optional -- the server runs on port 3456 without authentication if no `.env` exists. To change either, copy the example and **edit it**:
 ```bash
 cp .env.example .env
 ```
 > **Important:** `.env.example` ships `SERVER_API_KEY=your_secure_api_key_here` as a placeholder. Copying it unedited does not leave auth disabled -- it makes the server require that literal string, so every userscript request comes back `401`. Either set a real key or delete the line entirely.
 
-*(If you do define a `SERVER_API_KEY`, you should also create `packages/userscript/.env` containing `VITE_TRANSCRIPT_API_KEY=your_key`)*
+_(If you do define a `SERVER_API_KEY`, you should also create `packages/userscript/.env` containing `VITE_TRANSCRIPT_API_KEY=your_key`)_
 
 ### 3. Autostart the Server (Optional)
+
 The server has to be running for the userscript to work. To have it start automatically at login instead of launching it by hand every boot:
 ```bash
 ./install.sh
@@ -65,37 +68,49 @@ systemctl --user stop yt-transcript-server     # stop (frees the port for dev)
 Execute these commands from the root directory:
 
 ### Running the Server & Userscript
-* **Start local server (with hot reload):**
+
+- **Start local server (with hot reload):**
+
   ```bash
   bun run dev:server
   ```
-  *(Stop the systemd service first if you installed it -- see [Autostart](#3-autostart-the-server-optional) -- otherwise this fails to bind the port)*
-* **Build userscript:**
+
+  _(Stop the systemd service first if you installed it -- see [Autostart](#3-autostart-the-server-optional) -- otherwise this fails to bind the port)_
+- **Build userscript:**
+
   ```bash
   bun run build:userscript
   ```
-  *(Produces output inside `packages/userscript/dist/youtube-copy-transcript.user.js` for installation in Tampermonkey/Violentmonkey)*
+
+  _(Produces output inside `packages/userscript/dist/youtube-copy-transcript.user.js` for installation in Tampermonkey/Violentmonkey)_
 
 ### Using CLI & Inspection Tools
-* **Run CLI to print transcript:**
+
+- **Run CLI to print transcript:**
+
   ```bash
   bun run cli <videoId-or-URL>
   ```
-* **Inspect raw Innertube player response (for debugging):**
+- **Inspect raw Innertube player response (for debugging):**
+
   ```bash
   bun run inspect <videoId>
   ```
 
 ### Code Quality & Formatting
-* **Run unit tests:**
+
+- **Run unit tests:**
+
   ```bash
   bun run test
   ```
-* **Run workspace typechecks:**
+- **Run workspace typechecks:**
+
   ```bash
   bun run typecheck
   ```
-* **Format & Lint code (handled automatically on commit via Lefthook):**
+- **Format & Lint code (handled automatically on commit via Lefthook):**
+
   ```bash
   bun run format
   bun run lint
@@ -134,9 +149,9 @@ sequenceDiagram
     Script-->>User: Show "Copied!" button state & green dot indicators
 ```
 
-* **Who fetches the transcript?** The `@youtube-transcript/scraper` library (embedded in `@youtube-transcript/server`) coordinates the requests to YouTube.
-* **Who copies to the clipboard?** The browser-level userscript processes the returned text and writes it to your system clipboard using Tampermonkey's `GM_setClipboard`.
-* **Who persists the state?** The userscript saves the copied video ID locally via Tampermonkey storage so that the button can reflect a "previously copied" indicator (a green dot) if you revisit the page.
+- **Who fetches the transcript?** The `@youtube-transcript/scraper` library (embedded in `@youtube-transcript/server`) coordinates the requests to YouTube.
+- **Who copies to the clipboard?** The browser-level userscript processes the returned text and writes it to your system clipboard using Tampermonkey's `GM_setClipboard`.
+- **Who persists the state?** The userscript saves the copied video ID locally via Tampermonkey storage so that the button can reflect a "previously copied" indicator (a green dot) if you revisit the page.
 
 ---
 
@@ -165,7 +180,6 @@ sequenceDiagram
     Scraper->>CLI: Write raw logs, HTML, and JSON to ./debug/
 ```
 
-* **Who fetches the transcript?** The `@youtube-transcript/scraper` library (imported by `@youtube-transcript/cli`).
-* **Who copies to the clipboard?** The `@youtube-transcript/cli` package, utilizing the `clipboardy` library to interface with your OS clipboard.
-* **Who writes debug files?** The `@youtube-transcript/scraper` debug handler writes intermediate HTTP responses to a local `./debug` directory if the `--debug` flag is passed.
-
+- **Who fetches the transcript?** The `@youtube-transcript/scraper` library (imported by `@youtube-transcript/cli`).
+- **Who copies to the clipboard?** The `@youtube-transcript/cli` package, utilizing the `clipboardy` library to interface with your OS clipboard.
+- **Who writes debug files?** The `@youtube-transcript/scraper` debug handler writes intermediate HTTP responses to a local `./debug` directory if the `--debug` flag is passed.
